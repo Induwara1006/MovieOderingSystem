@@ -3,6 +3,7 @@ import './App.css';
 import MovieList from './components/MovieList';
 import MovieDetail from './components/MovieDetail';
 import SearchBar from './components/SearchBar';
+import CategoryFilter from './components/CategoryFilter';
 
 const API_KEY = '0510eb8a0a94b3e13f20f83d366294d1';
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -14,6 +15,8 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavorites, setShowFavorites] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('popular');
+  const [currentEndpoint, setCurrentEndpoint] = useState('movie/popular');
 
   useEffect(() => {
     // Load favorites from localStorage
@@ -24,14 +27,19 @@ function App() {
     fetchMovies();
   }, []);
 
-  const fetchMovies = async (query = '') => {
+  const fetchMovies = async (query = '', endpoint = currentEndpoint, genreId = null) => {
     setLoading(true);
     try {
-      const endpoint = query
-        ? `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}`
-        : `${BASE_URL}/movie/popular?api_key=${API_KEY}`;
+      let url;
+      if (query) {
+        url = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}`;
+      } else if (genreId) {
+        url = `${BASE_URL}/${endpoint}?api_key=${API_KEY}&with_genres=${genreId}`;
+      } else {
+        url = `${BASE_URL}/${endpoint}?api_key=${API_KEY}`;
+      }
       
-      const response = await fetch(endpoint);
+      const response = await fetch(url);
       const data = await response.json();
       setMovies(data.results || []);
     } catch (error) {
@@ -45,9 +53,21 @@ function App() {
     setSearchQuery(query);
     setShowFavorites(false);
     if (query.trim() === '') {
-      fetchMovies();
+      fetchMovies('', currentEndpoint, selectedCategory >= 10 ? selectedCategory : null);
     } else {
       fetchMovies(query);
+    }
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category.id);
+    setCurrentEndpoint(category.endpoint);
+    setSearchQuery('');
+    setShowFavorites(false);
+    if (category.genre) {
+      fetchMovies('', category.endpoint, category.id);
+    } else {
+      fetchMovies('', category.endpoint);
     }
   };
 
@@ -95,6 +115,13 @@ function App() {
           </button>
         </div>
       </header>
+
+      {!showFavorites && (
+        <CategoryFilter 
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+      )}
 
       <main className="App-main">
         {loading ? (
