@@ -1,0 +1,54 @@
+========================================
+TMDB API KEY SETUP GUIDE
+========================================
+
+STEP 1: Get Your Free API Key
+------------------------------
+1. Go to: https://www.themoviedb.org/
+2. Click "Join TMDB" (top right) to create a free account
+3. Verify your email address
+4. Log in to your account
+5. Click on your profile icon (top right)
+6. Select "Settings"
+7. Click on "API" in the left sidebar
+8. Click "Create" or "Request an API Key"
+9. Choose "Developer" option
+10. Fill out the form:
+    - Type of Use: Website
+    - Application Name: Movie Ordering System
+    - Application URL: http://localhost:3000
+    - Application Summary: Personal movie browsing application
+11. Accept the terms and submit
+12. Copy your API Key (v3 auth)
+
+STEP 2: Add API Key to Your Project
+------------------------------------
+1. Open the file: movie-ordering-site\src\App.js
+2. Find this line near the top (line 7):
+   const API_KEY = ''; 
+3. Paste your API key between the quotes:
+   const API_KEY = 'your_api_key_here';
+4. Save the file
+
+STEP 3: Run Your Application
+-----------------------------
+1. Open terminal in the movie-ordering-site folder
+2. Run: npm start
+3. Your browser will open to http://localhost:3000
+4. You should see popular movies displayed!
+
+TROUBLESHOOTING
+---------------
+- If movies don't load, check the browser console (F12) for errors
+- Make sure your API key is correctly pasted (no extra spaces)
+- Ensure you copied the "API Key (v3 auth)" not the "API Read Access Token"
+- The API key should be a 32-character alphanumeric string
+
+ALTERNATIVE: Use Demo API Key
+------------------------------
+For testing purposes only, you can use this demo key:
+0510eb8a0a94b3e13f20f83d366294d1
+
+Note: Demo keys may have rate limits. Get your own key for best experience.
+
+========================================

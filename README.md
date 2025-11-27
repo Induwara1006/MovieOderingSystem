@@ -1,70 +1,133 @@
-# Getting Started with Create React App
+# Movie Ordering System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based movie ordering website that displays movies using The Movie Database (TMDB) API. Users can browse movies, search for specific titles, view detailed information, add movies to favorites, and access download links.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- 🎬 **Movie Grid Display**: Browse popular movies in a responsive grid layout
+- 🔍 **Search Functionality**: Search for movies by title
+- ⭐ **Favorites System**: Add/remove movies to/from favorites with localStorage persistence
+- 📱 **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- 🎯 **Movie Details**: Click any movie to view detailed information including:
+  - Movie overview/description
+  - Release year
+  - Rating
+  - Popularity
+  - Download link
 
-### `npm start`
+## Setup Instructions
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. Get TMDB API Key
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Go to [The Movie Database (TMDB)](https://www.themoviedb.org/)
+2. Create a free account
+3. Navigate to Settings → API
+4. Request an API key (it's free for personal use)
+5. Copy your API key
 
-### `npm test`
+### 2. Configure the Application
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Open `src/App.js` and add your TMDB API key:
 
-### `npm run build`
+```javascript
+const API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual TMDB API key
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Install Dependencies
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm install
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 4. Run the Application
 
-### `npm run eject`
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The application will open in your browser at `http://localhost:3000`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
+movie-ordering-site/
+├── src/
+│   ├── components/
+│   │   ├── MovieList.js          # Grid display of movies
+│   │   ├── MovieList.css         # Styling for movie grid
+│   │   ├── MovieDetail.js        # Movie detail modal
+│   │   ├── MovieDetail.css       # Styling for detail modal
+│   │   ├── SearchBar.js          # Search functionality
+│   │   └── SearchBar.css         # Styling for search bar
+│   ├── App.js                     # Main application component
+│   ├── App.css                    # Main application styling
+│   └── index.js                   # Application entry point
+└── package.json
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## How to Use
 
-## Learn More
+### Browse Movies
+- The homepage displays popular movies by default
+- Scroll through the grid to see all available movies
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Search for Movies
+1. Enter a movie title in the search bar
+2. Click the "Search" button or press Enter
+3. Clear the search using the × button to return to popular movies
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### View Movie Details
+1. Click on any movie card
+2. A modal will open showing:
+   - Movie poster
+   - Full title
+   - Rating and release year
+   - Complete description
+   - Additional information
+   - Download link
 
-### Code Splitting
+### Add to Favorites
+- Click the star icon (☆) on any movie card to add it to favorites
+- The star will turn gold (⭐) when favorited
+- Click again to remove from favorites
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### View Favorites
+1. Click the "Favorites" button in the header
+2. View all your favorited movies
+3. Click the button again to return to the main movie list
+4. Favorites are saved in your browser's localStorage
 
-### Analyzing the Bundle Size
+## Technologies Used
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- **React**: Frontend framework
+- **TMDB API**: Movie data and images
+- **CSS3**: Styling and animations
+- **localStorage**: Persistent favorites storage
 
-### Making a Progressive Web App
+## API Information
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This project uses [The Movie Database (TMDB) API](https://www.themoviedb.org/documentation/api):
+- Popular Movies Endpoint: `/movie/popular`
+- Search Movies Endpoint: `/search/movie`
+- Image Base URL: `https://image.tmdb.org/t/p/w500`
 
-### Advanced Configuration
+## Note on Download Links
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The download links in this application are currently placeholder links for demonstration purposes. In a production environment, you would need to:
+1. Integrate with a legitimate movie distribution service
+2. Ensure proper licensing and copyright compliance
+3. Implement secure download mechanisms
+4. Add payment processing if required
 
-### Deployment
+## Browser Support
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Chrome (recommended)
+- Firefox
+- Safari
+- Edge
+- Mobile browsers
 
-### `npm run build` fails to minify
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is for educational purposes. Movie data and images are provided by TMDB and are subject to their terms of use.
+

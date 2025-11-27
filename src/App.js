@@ -1,23 +1,130 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import MovieList from './components/MovieList';
+import MovieDetail from './components/MovieDetail';
+import SearchBar from './components/SearchBar';
+
+const API_KEY = '0510eb8a0a94b3e13f20f83d366294d1';
+const BASE_URL = 'https://api.themoviedb.org/3';
 
 function App() {
+  const [movies, setMovies] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Load favorites from localStorage
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+    fetchMovies();
+  }, []);
+
+  const fetchMovies = async (query = '') => {
+    setLoading(true);
+    try {
+      const endpoint = query
+        ? `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}`
+        : `${BASE_URL}/movie/popular?api_key=${API_KEY}`;
+      
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      setMovies(data.results || []);
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setShowFavorites(false);
+    if (query.trim() === '') {
+      fetchMovies();
+    } else {
+      fetchMovies(query);
+    }
+  };
+
+  const handleMovieClick = (movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedMovie(null);
+  };
+
+  const toggleFavorite = (movie) => {
+    let updatedFavorites;
+    if (favorites.find(fav => fav.id === movie.id)) {
+      updatedFavorites = favorites.filter(fav => fav.id !== movie.id);
+    } else {
+      updatedFavorites = [...favorites, movie];
+    }
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  };
+
+  const isFavorite = (movieId) => {
+    return favorites.some(fav => fav.id === movieId);
+  };
+
+  const toggleShowFavorites = () => {
+    setShowFavorites(!showFavorites);
+    setSearchQuery('');
+  };
+
+  const displayedMovies = showFavorites ? favorites : movies;
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>🎬 Movie Ordering System</h1>
+        <div className="header-controls">
+          <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />
+          <button 
+            className={`favorites-btn ${showFavorites ? 'active' : ''}`}
+            onClick={toggleShowFavorites}
+          >
+            ⭐ Favorites ({favorites.length})
+          </button>
+        </div>
       </header>
+
+      <main className="App-main">
+        {loading ? (
+          <div className="loading">Loading movies...</div>
+        ) : (
+          <>
+            {showFavorites && favorites.length === 0 ? (
+              <div className="no-favorites">
+                <p>No favorites yet! Click the star icon on any movie to add it to your favorites.</p>
+              </div>
+            ) : (
+              <MovieList
+                movies={displayedMovies}
+                onMovieClick={handleMovieClick}
+                onToggleFavorite={toggleFavorite}
+                isFavorite={isFavorite}
+              />
+            )}
+          </>
+        )}
+      </main>
+
+      {selectedMovie && (
+        <MovieDetail
+          movie={selectedMovie}
+          onClose={handleCloseDetail}
+          onToggleFavorite={toggleFavorite}
+          isFavorite={isFavorite(selectedMovie.id)}
+        />
+      )}
     </div>
   );
 }
