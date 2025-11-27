@@ -84,6 +84,17 @@ body {
   padding: 60px 20px;
 }
 
+.end-message {
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
 .no-favorites {
   text-align: center;
   color: white;

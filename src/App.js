@@ -17,6 +17,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('popular');
   const [currentEndpoint, setCurrentEndpoint] = useState('movie/popular');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentGenreId, setCurrentGenreId] = useState(null);
 
   useEffect(() => {
     // Load favorites from localStorage
@@ -27,21 +30,47 @@ function App() {
     fetchMovies();
   }, []);
 
-  const fetchMovies = async (query = '', endpoint = currentEndpoint, genreId = null) => {
+  // Infinite scroll effect
+  useEffect(() => {
+    if (showFavorites || !hasMore || loading) return;
+
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      if (scrollTop + clientHeight >= scrollHeight - 500) {
+        fetchMovies(searchQuery, currentEndpoint, currentGenreId, page + 1, true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore, page, searchQuery, currentEndpoint, currentGenreId, showFavorites]);
+
+  const fetchMovies = async (query = '', endpoint = currentEndpoint, genreId = null, pageNum = 1, append = false) => {
     setLoading(true);
     try {
       let url;
       if (query) {
-        url = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}`;
+        url = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}&page=${pageNum}`;
       } else if (genreId) {
-        url = `${BASE_URL}/${endpoint}?api_key=${API_KEY}&with_genres=${genreId}`;
+        url = `${BASE_URL}/${endpoint}?api_key=${API_KEY}&with_genres=${genreId}&page=${pageNum}`;
       } else {
-        url = `${BASE_URL}/${endpoint}?api_key=${API_KEY}`;
+        url = `${BASE_URL}/${endpoint}?api_key=${API_KEY}&page=${pageNum}`;
       }
       
       const response = await fetch(url);
       const data = await response.json();
-      setMovies(data.results || []);
+      
+      if (append) {
+        setMovies(prev => [...prev, ...(data.results || [])]);
+      } else {
+        setMovies(data.results || []);
+      }
+      
+      setPage(pageNum);
+      setHasMore(pageNum < data.total_pages && data.total_pages > 0);
     } catch (error) {
       console.error('Error fetching movies:', error);
     } finally {
@@ -52,10 +81,15 @@ function App() {
   const handleSearch = (query) => {
     setSearchQuery(query);
     setShowFavorites(false);
+    setPage(1);
+    setHasMore(true);
     if (query.trim() === '') {
-      fetchMovies('', currentEndpoint, selectedCategory >= 10 ? selectedCategory : null);
+      const genreId = selectedCategory >= 10 ? selectedCategory : null;
+      setCurrentGenreId(genreId);
+      fetchMovies('', currentEndpoint, genreId, 1, false);
     } else {
-      fetchMovies(query);
+      setCurrentGenreId(null);
+      fetchMovies(query, currentEndpoint, null, 1, false);
     }
   };
 
@@ -64,10 +98,14 @@ function App() {
     setCurrentEndpoint(category.endpoint);
     setSearchQuery('');
     setShowFavorites(false);
+    setPage(1);
+    setHasMore(true);
     if (category.genre) {
-      fetchMovies('', category.endpoint, category.id);
+      setCurrentGenreId(category.id);
+      fetchMovies('', category.endpoint, category.id, 1, false);
     } else {
-      fetchMovies('', category.endpoint);
+      setCurrentGenreId(null);
+      fetchMovies('', category.endpoint, null, 1, false);
     }
   };
 
@@ -124,21 +162,23 @@ function App() {
       )}
 
       <main className="App-main">
-        {loading ? (
-          <div className="loading">Loading movies...</div>
+        {showFavorites && favorites.length === 0 ? (
+          <div className="no-favorites">
+            <p>No favorites yet! Click the star icon on any movie to add it to your favorites.</p>
+          </div>
         ) : (
           <>
-            {showFavorites && favorites.length === 0 ? (
-              <div className="no-favorites">
-                <p>No favorites yet! Click the star icon on any movie to add it to your favorites.</p>
-              </div>
-            ) : (
-              <MovieList
-                movies={displayedMovies}
-                onMovieClick={handleMovieClick}
-                onToggleFavorite={toggleFavorite}
-                isFavorite={isFavorite}
-              />
+            <MovieList
+              movies={displayedMovies}
+              onMovieClick={handleMovieClick}
+              onToggleFavorite={toggleFavorite}
+              isFavorite={isFavorite}
+            />
+            {loading && (
+              <div className="loading">Loading more movies...</div>
+            )}
+            {!showFavorites && !hasMore && !loading && movies.length > 0 && (
+              <div className="end-message">That's all the movies!</div>
             )}
           </>
         )}
